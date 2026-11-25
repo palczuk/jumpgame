@@ -305,12 +305,22 @@ function drawShovel(blade='#c9d0d3',handle='#594332'){
 
 function drawWrench(blade='#c9d0d3',handle='#594332'){
   x.save();
-  x.strokeStyle=handle;x.fillStyle=blade;x.lineWidth=2.3;x.lineCap='round';x.lineJoin='round';
+  x.scale(.78,.78);
+  x.lineCap='round';x.lineJoin='round';
+  // Slim handle with the familiar ring at the end.
+  x.strokeStyle=handle;x.lineWidth=6;
+  x.beginPath();x.moveTo(-8,8);x.lineTo(4,-4);x.stroke();
+  x.strokeStyle=blade;x.lineWidth=3.7;x.stroke();
+  x.fillStyle=blade;x.strokeStyle=handle;x.lineWidth=1.8;
+  x.beginPath();x.arc(-8,8,3.2,0,Math.PI*2);x.fill();x.stroke();
+  x.fillStyle=handle;x.beginPath();x.arc(-8,8,1.35,0,Math.PI*2);x.fill();
+  // Open, adjustable jaw at the head of the wrench.
   x.beginPath();
-  x.moveTo(-12,8);x.lineTo(4,-5);x.lineTo(9,-11);x.lineTo(12,-9);
-  x.lineTo(8,-3);x.lineTo(14,2);x.lineTo(11,5);x.lineTo(5,1);x.lineTo(-8,12);
-  x.quadraticCurveTo(-12,13,-12,8);x.closePath();x.fill();x.stroke();
-  x.beginPath();x.arc(-8,8,1.8,0,Math.PI*2);x.fillStyle='#5f6870';x.fill();
+  x.moveTo(2,-6);x.lineTo(5,-9);x.lineTo(11,-10);x.lineTo(8,-6);
+  x.lineTo(6,-4);x.lineTo(8,-2);x.lineTo(11,1);x.lineTo(8,4);
+  x.lineTo(4,1);x.lineTo(2,-1);x.closePath();x.fill();x.stroke();
+  x.strokeStyle=handle;x.lineWidth=1.3;
+  x.beginPath();x.moveTo(5,-3);x.lineTo(7,-1);x.stroke();
   x.restore();
 }
 
