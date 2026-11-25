@@ -522,47 +522,87 @@ const forestPalettes={
 function forestRegionAt(column){
   return (levelData.regions||[]).find(region=>column>=region.start&&column<region.end)||{background:'edge'};
 }
-// Desenha o fundo, o mapa, os personagens, os itens e a interface.
-function draw(){
-  const region=forestRegionAt((cam+W/2)/T);
-  const palette=forestPalettes[region.background]||forestPalettes.edge;
-  const s=x.createLinearGradient(0,0,0,H);
-  s.addColorStop(0,palette.sky[0]);s.addColorStop(.55,palette.sky[1]);s.addColorStop(1,palette.sky[2]);
-  x.fillStyle=s;x.fillRect(0,0,W,H);
-  x.fillStyle=palette.sun;x.beginPath();x.arc(620,105,30,0,Math.PI*2);x.fill();
-  x.fillStyle=palette.far;
+// Mistura as duas regioes ao longo de 20 blocos em vez de trocar no limite.
+function forestRegionBlendAt(column){
+  const regions=levelData.regions||[];
+  for(let index=0;index<regions.length-1;index++){
+    const boundary=regions[index].end,start=boundary-10,end=boundary+10;
+    if(column<start||column>end)continue;
+    const raw=(column-start)/(end-start);
+    const amount=raw*raw*(3-2*raw);
+    return {from:regions[index],to:regions[index+1],amount};
+  }
+  const region=forestRegionAt(column);
+  return {from:region,to:region,amount:0};
+}
+function mixForestColor(first,second,amount){
+  const a=parseInt(first.slice(1),16),b=parseInt(second.slice(1),16);
+  const channel=shift=>Math.round(((a>>shift)&255)*(1-amount)+((b>>shift)&255)*amount);
+  return '#'+[channel(16),channel(8),channel(0)].map(value=>value.toString(16).padStart(2,'0')).join('');
+}
+// Interpola cores do ceu e do terreno para evitar uma mudanca brusca entre biomas.
+function forestPaletteAt(column){
+  const blend=forestRegionBlendAt(column);
+  const from=forestPalettes[blend.from.background]||forestPalettes.edge;
+  const to=forestPalettes[blend.to.background]||forestPalettes.edge;
+  return {
+    sky:from.sky.map((color,index)=>mixForestColor(color,to.sky[index],blend.amount)),
+    sun:mixForestColor(from.sun,to.sun,blend.amount),
+    far:mixForestColor(from.far,to.far,blend.amount),
+    near:mixForestColor(from.near,to.near,blend.amount),
+    soil:mixForestColor(from.soil,to.soil,blend.amount),
+    grass:mixForestColor(from.grass,to.grass,blend.amount),
+    highlight:mixForestColor(from.highlight,to.highlight,blend.amount)
+  };
+}
+// Desenha as silhuetas das arvores com transparencia durante a transicao.
+function drawForestFarTrees(style,color,alpha){
+  if(alpha<=0)return;
+  x.save();x.globalAlpha=alpha;x.fillStyle=color;
   for(let k=-1;k<10;k++){
     const bx=k*118-(cam*.18%118),base=H-38-(k%3)*9;
     x.fillRect(bx-5,base-170,10,190);
     x.beginPath();
-    if(region.background==='deep'){
+    if(style==='deep'){
       x.moveTo(bx,base-232);x.lineTo(bx-44,base-146);x.lineTo(bx-25,base-151);x.lineTo(bx-54,base-94);x.lineTo(bx+54,base-94);x.lineTo(bx+25,base-151);x.lineTo(bx+44,base-146);
-    }else if(region.background==='clearing'){
-      x.ellipse(bx,base-169,38,54,-.12,0,Math.PI*2);
-    }else{
-      x.arc(bx,base-180,42,0,Math.PI*2);x.arc(bx-26,base-154,32,0,Math.PI*2);x.arc(bx+27,base-150,35,0,Math.PI*2);
-    }
+    }else if(style==='clearing')x.ellipse(bx,base-169,38,54,-.12,0,Math.PI*2);
+    else{x.arc(bx,base-180,42,0,Math.PI*2);x.arc(bx-26,base-154,32,0,Math.PI*2);x.arc(bx+27,base-150,35,0,Math.PI*2)}
     x.closePath();x.fill();
   }
-  x.fillStyle=palette.near;
+  x.restore();
+}
+function drawForestNearTrees(style,color,alpha){
+  if(alpha<=0)return;
+  x.save();x.globalAlpha=alpha;x.fillStyle=color;
   for(let k=-1;k<12;k++){
     const bx=k*92-(cam*.34%92),base=H-18;
     x.fillRect(bx-4,base-130,8,145);
     x.beginPath();
-    if(region.background==='deep'){
-      x.moveTo(bx,base-218);x.lineTo(bx-38,base-130);x.lineTo(bx-22,base-135);x.lineTo(bx-48,base-82);x.lineTo(bx+48,base-82);x.lineTo(bx+22,base-135);x.lineTo(bx+38,base-130);
-    }else if(region.background==='clearing'){
-      x.ellipse(bx,base-145,30,42,.08,0,Math.PI*2);
-    }else{
-      x.moveTo(bx,base-218);x.lineTo(bx-38,base-130);x.lineTo(bx-22,base-135);x.lineTo(bx-48,base-82);x.lineTo(bx+48,base-82);x.lineTo(bx+22,base-135);x.lineTo(bx+38,base-130);
-    }
+    if(style==='clearing')x.ellipse(bx,base-145,30,42,.08,0,Math.PI*2);
+    else{x.moveTo(bx,base-218);x.lineTo(bx-38,base-130);x.lineTo(bx-22,base-135);x.lineTo(bx-48,base-82);x.lineTo(bx+48,base-82);x.lineTo(bx+22,base-135);x.lineTo(bx+38,base-130)}
     x.closePath();x.fill();
   }
+  x.restore();
+}
+// Desenha o fundo, o mapa, os personagens, os itens e a interface.
+function draw(){
+  const backgroundBlend=forestRegionBlendAt((cam+W/2)/T);
+  const palette=forestPaletteAt((cam+W/2)/T);
+  const s=x.createLinearGradient(0,0,0,H);
+  s.addColorStop(0,palette.sky[0]);s.addColorStop(.55,palette.sky[1]);s.addColorStop(1,palette.sky[2]);
+  x.fillStyle=s;x.fillRect(0,0,W,H);
+  x.fillStyle=palette.sun;x.beginPath();x.arc(620,105,30,0,Math.PI*2);x.fill();
+  const fromPalette=forestPalettes[backgroundBlend.from.background]||forestPalettes.edge;
+  const toPalette=forestPalettes[backgroundBlend.to.background]||forestPalettes.edge;
+  drawForestFarTrees(backgroundBlend.from.background,fromPalette.far,1-backgroundBlend.amount);
+  drawForestFarTrees(backgroundBlend.to.background,toPalette.far,backgroundBlend.amount);
+  drawForestNearTrees(backgroundBlend.from.background,fromPalette.near,1-backgroundBlend.amount);
+  drawForestNearTrees(backgroundBlend.to.background,toPalette.near,backgroundBlend.amount);
   x.save();x.translate(-Math.round(cam),0);
   const i0=Math.floor(cam/T),i1=i0+Math.ceil(W/T)+1;
   for(let j=0;j<ROWS;j++)for(let i=i0;i<=i1&&i<COLS;i++){
     if(g[j][i]==='#'){
-      const tilePalette=forestPalettes[forestRegionAt(i).background]||forestPalettes.edge;
+      const tilePalette=forestPaletteAt(i+.5);
       x.fillStyle=tilePalette.soil;x.fillRect(i*T,j*T,T,T);
       if(!solid(i,j-1)){x.fillStyle=tilePalette.grass;x.fillRect(i*T,j*T,T,7);x.fillStyle=tilePalette.highlight;x.fillRect(i*T,j*T,T,2)}
       x.fillStyle='rgba(39,77,45,.3)';x.fillRect(i*T+4,j*T+13,3,3);x.fillRect(i*T+22,j*T+23,4,3);
