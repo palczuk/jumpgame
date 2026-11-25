@@ -181,7 +181,7 @@ function update(dt){
   P.shotCooldown=Math.max(0,P.shotCooldown-dt);
   if((keys.KeyX||keys.KeyF||padX)&&P.shotCooldown<=0&&ammo>0){
     const shot=window.GameCharacters[selectedCharacterId].projectile;
-    projectiles.push({type:shot.type,color:shot.color,outline:shot.outline,damage:shot.damage||1,x:P.x+P.w/2+P.face*16,y:P.y+P.h/2,vx:P.face*shot.speed,r:shot.radius,life:1.8});
+    projectiles.push({type:shot.type,color:shot.color,outline:shot.outline,damage:shot.damage||1,x:P.x+P.w/2+P.face*16,y:P.y+P.h/2,vx:P.face*shot.speed,r:shot.radius,life:(10 * T) / shot.speed});
     window.GameAudio.play('throw');
     ammo--;P.shotCooldown=shot.cooldown;
   }
@@ -229,7 +229,9 @@ function update(dt){
     }
   }
   for(const b of projectiles){
-    b.x+=b.vx*dt;b.life-=dt;
+    const tempoDeVoo = Math.min(dt, b.life);
+    b.x += b.vx * tempoDeVoo;
+    b.life -= tempoDeVoo;
     const target=E.find(e=>!e.dying&&hit({x:b.x-b.r,y:b.y-b.r,w:b.r*2,h:b.r*2},e));
     if(target){target.hp-=b.damage;b.life=0;if(target.hp<=0){target.dying=true;target.deathStarted=tm;target.shooting=false;target.vx=0;target.vy=0;kills++;window.GameAudio.play('enemyDefeat')}}
   }
@@ -504,8 +506,8 @@ function draw(){
   const i0=Math.floor(cam/T),i1=i0+Math.ceil(W/T)+1;
   for(let j=0;j<ROWS;j++)for(let i=i0;i<=i1&&i<COLS;i++){
     if(g[j][i]==='#'){
-      x.fillStyle='#654b32';x.fillRect(i*T,j*T,T,T);
-      if(!solid(i,j-1)){x.fillStyle='#66a34e';x.fillRect(i*T,j*T,T,7);x.fillStyle='#8cc75d';x.fillRect(i*T,j*T,T,2)}
+      x.fillStyle='#553b22';x.fillRect(i*T,j*T,T,T);
+      if(!solid(i,j-1)){x.fillStyle='#508a39';x.fillRect(i*T,j*T,T,7);x.fillStyle='#8cc75d';x.fillRect(i*T,j*T,T,2)}
       x.fillStyle='rgba(39,77,45,.3)';x.fillRect(i*T+4,j*T+13,3,3);x.fillRect(i*T+22,j*T+23,4,3);
       x.strokeStyle='rgba(24,46,32,.32)';x.strokeRect(i*T+.5,j*T+.5,T-1,T-1);
     }

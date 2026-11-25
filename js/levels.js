@@ -11,7 +11,7 @@ window.GameLevels = [
 "                                                            ",
 "                                                            ",
 "                                                            ",
-"                                           ooo                          oo          ",
+"                                           ooo                         E oo          ",
 "                              oo          #####              ooo      #####        ",
 "              oo            #####                          #####                   ",
 "        ooo       ###                  E        ###                      #####      ",
