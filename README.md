@@ -56,7 +56,7 @@ Os dois personagens usam atlas transparentes em grade 6 x 6, com tamanho e alinh
 
 ## Meta e dificuldade da fase
 
-Para concluir a primeira fase, alcance a bandeira, derrote pelo menos um terco dos inimigos e colete pelo menos metade das moedas. A meta e calculada a partir do conteudo da fase e aparece no HUD. O mapa tem 333 blocos, 27 inimigos e 90 moedas, com tres trechos de floresta diferentes em progressao: borda, floresta densa e clareira. Os inimigos aumentam de 7 para 9 e depois 11; as plataformas, lacunas, cores do terreno e fundos tambem mudam entre os trechos.
+Para concluir a primeira fase, alcance a bandeira, derrote pelo menos um terco dos inimigos e colete pelo menos metade das moedas. A meta e calculada a partir do conteudo da fase e aparece no HUD. O mapa tem 333 blocos, 25 inimigos e 90 moedas, com tres trechos de floresta diferentes em progressao: borda, floresta densa e clareira. Os inimigos aumentam de 5 para 9 e depois 11; as plataformas, lacunas, cores do terreno e fundos tambem mudam entre os trechos.
 
 ## Super PACO
 
