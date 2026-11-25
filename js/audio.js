@@ -4,6 +4,7 @@ window.GameAudioFiles = {
   jumpMasterIntro: 'assets/audio/jumpmaster.mp3',
   superSkinnyIntro: 'assets/audio/superskinny-intro.mp3',
   ssg12Intro: 'assets/audio/ssg12november.mp3',
+  pacoIntro: 'assets/audio/paco.mp3',
   enemyFire: 'assets/audio/boladefogo.mp3',
   enemyDefeat: 'assets/audio/enemydied.mp3',
   throw: 'assets/audio/lancamento.mp3',

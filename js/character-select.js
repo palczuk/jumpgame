@@ -44,13 +44,14 @@ window.CharacterSelect = {
       ctx.fill();
       ctx.stroke();
       const cx = x + w / 2;
-      const portraitSheet=selectionPortraitSheets[character.selectionPortraitSet];
+      const spritePortrait=character.selectionPortraitSet==='sprite';
+      const portraitSheet=spritePortrait?character.image:selectionPortraitSheets[character.selectionPortraitSet];
       if (portraitSheet?.complete && portraitSheet.naturalWidth) {
-        const cellWidth=portraitSheet.naturalWidth/4;
-        const cellHeight=portraitSheet.naturalHeight;
+        const cellWidth=portraitSheet.naturalWidth/(spritePortrait?character.gridColumns:4);
+        const cellHeight=portraitSheet.naturalHeight/(spritePortrait?character.gridRows:1);
         const scale=Math.min((w-28)/cellWidth,138/cellHeight);
         const drawWidth=cellWidth*scale,drawHeight=cellHeight*scale;
-        const sourceX=character.selectionPortraitIndex*cellWidth;
+        const sourceX=spritePortrait?0:character.selectionPortraitIndex*cellWidth;
         ctx.drawImage(portraitSheet,sourceX,0,cellWidth,cellHeight,
           cx-drawWidth/2,y+5+(138-drawHeight)/2,drawWidth,drawHeight);
       }

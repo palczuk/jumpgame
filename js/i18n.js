@@ -8,6 +8,7 @@ window.GameI18n = (() => {
       continue: 'Press Space to continue', retryHint: 'Choose an option below',
       selectTitle: 'Choose your character', selectHint: 'Arrows, A/D, or controller stick/D-pad; confirm with Space, Enter, or A.',
       attack: 'Attack', selected: 'Selected', snowball: 'Snowballs', knife: 'Knives', banana: 'Bananas',
+      superPaco: 'Super PACO', wrench: 'Wrenches',
       left: 'Move left', right: 'Move right', jumpButton: 'Jump', attackButton: 'Attack',
       jumpMaster: 'Jump Master', superSkinny: 'Super Skinny', ssg12: '12 November', luke: 'Super Lucas',
       shovels: 'Shovels'
@@ -20,6 +21,7 @@ window.GameI18n = (() => {
       continue: 'Pressione Espaço para continuar', retryHint: 'Escolha uma opção abaixo',
       selectTitle: 'Escolha seu personagem', selectHint: 'Setas, A/D ou anal\u00f3gico/D-pad do controle; confirme com Espa\u00e7o, Enter ou A.',
       attack: 'Ataque', selected: 'Selecionado', snowball: 'Bolas de neve', knife: 'Facas', banana: 'Bananas',
+      superPaco: 'Super PACO', wrench: 'Chaves',
       left: 'Mover para a esquerda', right: 'Mover para a direita', jumpButton: 'Pular', attackButton: 'Atacar',
       jumpMaster: 'Jump Master', superSkinny: 'Super Skinny', ssg12: '12 November', luke: 'Super Lucas',
       shovels: 'Pás'

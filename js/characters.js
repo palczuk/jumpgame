@@ -103,5 +103,32 @@ window.GameCharacters = {
       color: '#c9d0d3',
       outline: '#594332'
     }
+  },
+  superPaco: {
+    id: 'superPaco',
+    name: 'Super PACO',
+    nameKey: 'superPaco',
+    groundOffset: 4,
+    selectionOrder: 4,
+    selectionPortraitSet: 'sprite',
+    description: 'Mechanic hero',
+    sprite: 'assets/paco-sprites.png',
+    gridColumns: 6,
+    gridRows: 6,
+    animationType: 'paco',
+    introSound: 'pacoIntro',
+    parachuteEntry: true,
+    parachuteInSprite: true,
+    startingAmmo: 10,
+    projectile: {
+      type: 'wrench',
+      labelKey: 'wrench',
+      speed: 520,
+      radius: 7,
+      cooldown: 0.3,
+      damage: 1,
+      color: '#c9d0d3',
+      outline: '#594332'
+    }
   }
 };

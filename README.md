@@ -57,3 +57,7 @@ Os dois personagens usam atlas transparentes em grade 6 x 6, com tamanho e alinh
 ## Meta e dificuldade da fase
 
 Para concluir a fase, derrote pelo menos 5 inimigos, colete 50 moedas e alcance a bandeira. A fase agora tem inimigos adicionais, quatro pontos de municao por segmento (cada coleta fornece 5 unidades, ate o limite de 50) e buracos maiores. Os inimigos surgem alinhados a uma superficie solida e as moedas ganharam aro e relevo dourado.
+
+## Super PACO
+
+O quinto personagem usa `assets/paco-sprites.png`, um atlas 6 x 6 com repouso, corrida, salto, arremesso de chave, derrota e entrada de paraquedas. Ele inicia com 10 chaves, causa 1 ponto de dano e arremessa a ferramenta por ate 10 blocos. O som de entrada esta configurado em `assets/audio/paco.mp3`.

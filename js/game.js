@@ -303,6 +303,17 @@ function drawShovel(blade='#c9d0d3',handle='#594332'){
   x.beginPath();x.moveTo(3,-7);x.lineTo(12,-8);x.lineTo(15,-3);x.lineTo(8,1);x.lineTo(4,-2);x.closePath();x.fill();x.stroke();
 }
 
+function drawWrench(blade='#c9d0d3',handle='#594332'){
+  x.save();
+  x.strokeStyle=handle;x.fillStyle=blade;x.lineWidth=2.3;x.lineCap='round';x.lineJoin='round';
+  x.beginPath();
+  x.moveTo(-12,8);x.lineTo(4,-5);x.lineTo(9,-11);x.lineTo(12,-9);
+  x.lineTo(8,-3);x.lineTo(14,2);x.lineTo(11,5);x.lineTo(5,1);x.lineTo(-8,12);
+  x.quadraticCurveTo(-12,13,-12,8);x.closePath();x.fill();x.stroke();
+  x.beginPath();x.arc(-8,8,1.8,0,Math.PI*2);x.fillStyle='#5f6870';x.fill();
+  x.restore();
+}
+
 function drawSsg12(character,airborne,walking){
   const sprite=character.image;
   if(!sprite.complete||!sprite.naturalWidth)return;
@@ -539,6 +550,10 @@ function draw(){
       x.save();x.translate(px,py);drawShovel();x.restore();
       continue;
     }
+    if(window.GameCharacters[selectedCharacterId].projectile.type==='wrench'){
+      x.save();x.translate(px,py);drawWrench();x.restore();
+      continue;
+    }
     x.fillStyle='#f6fdff';x.strokeStyle='#9bdfff';x.lineWidth=2;x.beginPath();x.arc(px,py,8,0,Math.PI*2);x.fill();x.stroke();
     x.fillStyle='#d7f4ff';x.beginPath();x.arc(px-2,py-2,3,0,Math.PI*2);x.fill();
   }
@@ -565,6 +580,8 @@ function draw(){
       x.scale(Math.sign(b.vx),1);x.rotate(Math.sin(tm*5)*.12);drawBanana(b.color,b.outline);
     }else if(b.type==='shovel'){
       x.scale(Math.sign(b.vx),1);x.rotate(Math.sin(tm*18)*.12);drawShovel(b.color,b.outline);
+    }else if(b.type==='wrench'){
+      x.scale(Math.sign(b.vx),1);x.rotate(Math.sin(tm*14)*.16);drawWrench(b.color,b.outline);
     }else if(b.type==='fireball'){
       x.fillStyle='#ff7a32';x.beginPath();x.arc(0,0,b.r+2,0,Math.PI*2);x.fill();x.fillStyle=b.color;x.beginPath();x.arc(0,0,b.r,0,Math.PI*2);x.fill();
     }else if(b.type==='energy'){
@@ -579,10 +596,10 @@ function draw(){
     const walking=state==='play'&&P.ground&&Math.abs(P.vx)>25;
     const character=window.GameCharacters[selectedCharacterId];
     const heroSheet=character.image;
-    if(state==='parachute'&&character.animationType!=='zam')drawParachute(character.canopyColor);
+    if(state==='parachute'&&character.animationType!=='zam'&&!character.parachuteInSprite)drawParachute(character.canopyColor);
     if(character.animationType==='ssg12'){
       drawSsg12(character,airborne,state==='play'&&P.ground&&Math.abs(P.vx)>25);
-    }else if(character.animationType==='luke'||character.animationType==='zam'){
+    }else if(character.animationType==='luke'||character.animationType==='zam'||character.animationType==='paco'){
       drawGridHero(character,airborne,walking);
     }else if(character.stripFrames){
       drawSpriteStrip(character, airborne, walking);
