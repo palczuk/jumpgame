@@ -28,7 +28,7 @@ window.GameCharacters = {
   },
   jumpmaster: {
     id: 'jumpmaster',
-    name: 'Jump',
+    name: 'Jump Master',
     nameKey: 'jumpMaster',
     groundOffset: 4,
     selectionOrder: 1,

@@ -1,6 +1,6 @@
 const c=document.getElementById('g'),x=c.getContext('2d');
 x.scale(1.6,1.6);
-let dozerEntryStarted=0;
+
 let selectedCharacterId='luke';
 let characterIntroPlayed=false;
 for (const character of Object.values(window.GameCharacters)) {
@@ -100,14 +100,11 @@ function enterLevel(){
   }
   const character=window.GameCharacters[selectedCharacterId];
   state='play';
-  if(character.dozerEntry){
-    dozerEntryStarted=tm;
-    P.x=150;P.y=354;P.ground=true;P.face=1;
-    state='dozerEntry';
-  }else if(character.dinoEntry){
-    dozerEntryStarted=tm;
-    P.x=150;P.y=354;P.ground=true;P.face=1;
-    state='dinoEntry';
+  if(character.dozerEntry || character.dinoEntry){
+    P.x=150;
+    P.y=8;
+    P.ground=false;
+    state=character.dozerEntry ? 'dozerEntry' : 'dinoEntry';
   }else if (character.parachuteEntry) {
     P.y = 115;
     state = 'parachute';
@@ -132,13 +129,10 @@ function moveCharacterSelection(direction){
 }
 function update(dt){
   tm+=dt;
-  if(state==='dozerEntry'){
-    if(tm-dozerEntryStarted>=1.5)state='play';
-    else return;
-  }
-  if(state==='dinoEntry'){
-    if(tm-dozerEntryStarted>=1.2)state='play';
-    else return;
+  if(state==='dozerEntry' || state==='dinoEntry'){
+    move(P,0,135*dt);
+    if(P.ground) state='play';
+    return;
   }
   const pad=Array.from(navigator.getGamepads?.()||[]).find(gamepad=>gamepad&&gamepad.connected);
   const padA=Boolean(pad?.buttons[0]?.pressed);
@@ -313,7 +307,7 @@ function drawSsg12(character,airborne,walking){
   const columns=character.gridColumns,rows=character.gridRows;
   const fw=sprite.naturalWidth/columns,fh=sprite.naturalHeight/rows;
   let frame=0;
-  if(state==='dozerEntry')frame=42+Math.min(5,Math.floor((tm-dozerEntryStarted)/1.5*6));
+  if(state==='dozerEntry')frame=47;
   else if(state==='dead'||state==='over')frame=36+Math.min(4,Math.floor((tm-deathTime)/.16));
   else if(state==='play'&&P.shotCooldown>0){
     frame=24+Math.min(5,Math.floor((1-P.shotCooldown/character.projectile.cooldown)*6));
@@ -327,21 +321,17 @@ function drawSsg12(character,airborne,walking){
   const sx=(frame%columns)*fw,sy=Math.floor(frame/columns)*fh;
   x.save();
   if(state==='dozerEntry'){
-    const elapsed=Math.max(0,Math.min(1,(tm-dozerEntryStarted)/1.5));
-    const ease=elapsed*elapsed*(3-2*elapsed);
-    const dozerX=P.x-205+ease*300;
-    x.drawImage(sprite,sx,sy,fw,fh,dozerX,P.y+P.h-187,224,190);
-    const dustAlpha=(1-elapsed)*.58;
-    if(dustAlpha>0){
-      x.globalAlpha=dustAlpha;
-      x.fillStyle='#d9c6a1';
-      for(let puff=0;puff<4;puff++){
-        const px=P.x+P.w/2-20+puff*14+Math.sin(tm*11+puff)*3;
-        const py=P.y+P.h-8-puff%2*7;
-        x.beginPath();x.arc(px,py,8+(puff%2)*3,0,Math.PI*2);x.fill();
-      }
-      x.globalAlpha=1;
-    }
+    const center=P.x+P.w/2, bottom=P.y+P.h;
+    drawParachute('#797e43',bottom-118,1.42);
+    // The last cell also contains a standing soldier. Draw just the vehicle.
+    x.drawImage(sprite,sx,sy+fh*.18,fw*.71,fh*.73,center-55,bottom-88,110,88);
+    // Frame zero supplies the operator visible through the cab window.
+    x.save();
+    x.beginPath();
+    x.roundRect(center-24,bottom-66,19,25,3);
+    x.clip();
+    x.drawImage(sprite,0,0,fw,fh,center-38,bottom-68,48,50);
+    x.restore();
   }else{
     x.translate(P.x+P.w/2,P.y+P.h+(character.groundOffset||0));x.scale(P.face,1);
     x.drawImage(sprite,sx,sy,fw,fh,-27,-54,54,54);
@@ -359,7 +349,7 @@ function drawGridHero(character,airborne,walking){
   if(state==='dead'||state==='over'){
     const elapsed=tm-deathTime;
     frame=24+(elapsed<.22?Math.min(1,Math.floor(elapsed/.11)):2+Math.min(2,Math.floor((elapsed-.22)/.16)));
-  }else if(state==='dinoEntry')frame=30+Math.min(5,Math.floor((tm-dozerEntryStarted)*5));
+  }else if(state==='dinoEntry')frame=30;
   else if(state==='parachute')frame=30+Math.min(5,Math.floor((P.y-115)/32));
   else if(state==='play'&&P.shotCooldown>.08){
     frame=18+Math.min(4,Math.floor((1-P.shotCooldown/character.projectile.cooldown)*5));
@@ -367,6 +357,12 @@ function drawGridHero(character,airborne,walking){
   else if(P.landTimer>0)frame=15;
   else if(walking)frame=6+phase;
   else frame=0;
+  if(state==='dinoEntry'){
+    const bottom=P.y+P.h;
+    drawParachute('#c69241',bottom-109,1.25);
+    x.drawImage(sprite,0,5*fh,fw,fh,P.x+P.w/2-49,bottom-96,98,98);
+    return;
+  }
   x.save();
   x.translate(P.x+P.w/2,P.y+P.h+(character.groundOffset||0));
   x.scale(P.face,1);
@@ -394,9 +390,10 @@ function drawGrenadier(e){
   x.restore();
 }
 
-function drawParachute(color='#e6b861'){
+function drawParachute(color='#e6b861', canopyY=P.y-58, scale=1){
   x.save();
-  x.translate(P.x+P.w/2,P.y-58);
+  x.translate(P.x+P.w/2,canopyY);
+  x.scale(scale,scale);
   x.strokeStyle='#f8e9bd';
   x.lineWidth=1.5;
   for(const side of [-1,1]){
