@@ -30,12 +30,20 @@
 </main>
 <p class="instructions" id="instructions"></p>
 <p class="credits" id="credits">Desenvolvido por Palczuk J.</p>
+<!-- Primeiro carregue os mapas individuais; depois registre-os na lista de fases. -->
+<script defer src="js/levels/forest-1.js"></script>
 <script defer src="js/levels.js"></script>
 <script defer src="js/characters.js"></script>
 <script defer src="js/audio.js"></script>
 <script defer src="js/i18n.js"></script>
 <script defer src="js/character-select.js"></script>
+<!-- O motor carrega em ordem: estado, atualizacao, desenhos, controles e inicializacao. -->
 <script defer src="js/game.js"></script>
+<script defer src="js/game-update.js"></script>
+<script defer src="js/game-weapons.js"></script>
+<script defer src="js/game-characters.js"></script>
+<script defer src="js/game-render.js"></script>
+<script defer src="js/game-controls.js"></script>
 <script defer src="js/main.js"></script>
 </body>
 </html>

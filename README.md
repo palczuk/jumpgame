@@ -7,8 +7,14 @@ Creditos: Desenvolvido por Palczuk J.
 - `index.html`: pagina e canvas do jogo.
 - `css/style.css`: estilos responsivos para computador e celular.
 - `js/main.js`: inicializa a musica e o jogo.
-- `js/game.js`: motor, controles, fisica, inimigos e telas.
-- `js/levels.js`: mapas e configuracoes das fases.
+- `js/game.js`: estado da partida, configuracao do mapa e fluxo entre menus e fases.
+- `js/game-update.js`: movimento, colisao, combate, itens e metas.
+- `js/game-weapons.js`: desenho das ferramentas e projeteis.
+- `js/game-characters.js`: animacoes dos herois e inimigos.
+- `js/game-render.js`: cenarios, terreno, HUD e menus.
+- `js/game-controls.js`: teclado, mouse, toque e inicializacao do ciclo do jogo.
+- `js/levels/forest-1.js`: mapa e configuracao da primeira fase.
+- `js/levels.js`: lista que registra as fases disponiveis.
 - `js/characters.js`: personagens, sprites, sons de entrada e ataques.
 - `js/character-select.js`: tela de selecao de personagem.
 - `js/i18n.js`: textos em portugues e ingles.
@@ -19,14 +25,24 @@ Creditos: Desenvolvido por Palczuk J.
 
 | O que voce quer mudar | Arquivo |
 | --- | --- |
-| Posicao de plataformas, buracos, moedas, inimigos e regioes | `js/levels.js` |
-| Controles, movimento, colisao, metas, combate e desenho da partida | `js/game.js` |
+| Posicao de plataformas, buracos, moedas, inimigos e regioes da primeira floresta | `js/levels/forest-1.js` |
+| Ordem das fases que o jogo deve carregar | `js/levels.js` |
+| Configuracao e fluxo da partida | `js/game.js` |
+| Movimento, colisao, metas e combate | `js/game-update.js` |
+| Cenarios, terreno, HUD e menus | `js/game-render.js` |
+| Animacoes dos personagens | `js/game-characters.js` |
+| Controles de teclado, mouse e toque | `js/game-controls.js` |
+| Desenho de armas e projeteis | `js/game-weapons.js` |
 | Ordem, sprites, entrada e ataques dos herois | `js/characters.js` |
 | Cartoes e retratos da selecao de herois | `js/character-select.js` |
 | Caminhos e reproducao de sons | `js/audio.js` |
 | Textos em portugues e ingles | `js/i18n.js` |
 
 Os comentarios em portugues no codigo marcam os principais blocos e explicam a funcao de cada parte.
+
+### Como adicionar uma fase
+
+Crie um arquivo proprio, por exemplo `js/levels/forest-2.js`, que defina `window.GameLevelForest2`. Carregue esse arquivo em `index.html` antes de `js/levels.js` e acrescente `window.GameLevelForest2` a `window.GameLevels` no cadastro. A ordem nessa lista define a progressao das fases.
 
 ## Musicas e efeitos
 
