@@ -181,7 +181,7 @@ function update(dt){
   P.shotCooldown=Math.max(0,P.shotCooldown-dt);
   if((keys.KeyX||keys.KeyF||padX)&&P.shotCooldown<=0&&ammo>0){
     const shot=window.GameCharacters[selectedCharacterId].projectile;
-    projectiles.push({type:shot.type,color:shot.color,outline:shot.outline,damage:shot.damage||1,x:P.x+P.w/2+P.face*16,y:P.y+P.h/2,vx:P.face*shot.speed,r:shot.radius,life:(10 * T) / shot.speed});
+    projectiles.push({type:shot.type,color:shot.color,outline:shot.outline,damage:shot.damage||1,x:P.x+P.w/2+P.face*16,y:P.y+P.h/2,vx:P.face*shot.speed,r:shot.radius,life: selectedCharacterId === 'luke' ? Infinity : (10 * T) / shot.speed});
     window.GameAudio.play('throw');
     ammo--;P.shotCooldown=shot.cooldown;
   }
