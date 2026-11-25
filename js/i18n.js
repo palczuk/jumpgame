@@ -3,7 +3,7 @@ window.GameI18n = (() => {
     en: {
       title: 'JUMP', language: '🌐 LANGUAGE / IDIOMA', fullscreen: 'Fullscreen', developedBy: 'Developed by Palczuk J.',
       instructions: 'Keyboard: arrows or A/D to move, Space to jump, X/F to attack. On mobile, use the on-screen controls.',
-      coins: 'Coins', enemiesDefeated: 'Defeated', objectiveHint: 'Reach the flag after defeating 5 enemies and collecting 50 coins.', lives: 'Lives', restart: 'Restart', backSelect: 'Character selection',
+      coins: 'Coins', enemiesDefeated: 'Defeated', objectiveHint: 'Meet the minimum goals and reach the flag.', lives: 'Lives', restart: 'Restart', backSelect: 'Character selection',
       dead: 'You died!', over: 'Game over', win: 'You reached the flag!',
       continue: 'Press Space to continue', retryHint: 'Choose an option below',
       selectTitle: 'Choose your character', selectHint: 'Arrows, A/D, or controller stick/D-pad; confirm with Space, Enter, or A.',
@@ -16,7 +16,7 @@ window.GameI18n = (() => {
     pt: {
       title: 'JUMP', language: 'Idioma', fullscreen: 'Tela cheia', developedBy: 'Desenvolvido por Palczuk J.',
       instructions: 'Teclado: setas ou A/D para mover, Espaço para pular, X/F para atacar. No celular, use os controles na tela.',
-      coins: 'Moedas', enemiesDefeated: 'Derrotados', objectiveHint: 'Chegue a bandeira depois de derrotar 5 inimigos e coletar 50 moedas.', lives: 'Vidas', restart: 'Reiniciar', backSelect: 'Seleção de personagens',
+      coins: 'Moedas', enemiesDefeated: 'Derrotados', objectiveHint: 'Cumpra as metas e chegue a bandeira.', lives: 'Vidas', restart: 'Reiniciar', backSelect: 'Seleção de personagens',
       dead: 'Você morreu!', over: 'Fim de jogo', win: 'Você chegou à bandeira!',
       continue: 'Pressione Espaço para continuar', retryHint: 'Escolha uma opção abaixo',
       selectTitle: 'Escolha seu personagem', selectHint: 'Setas, A/D ou anal\u00f3gico/D-pad do controle; confirme com Espa\u00e7o, Enter ou A.',
