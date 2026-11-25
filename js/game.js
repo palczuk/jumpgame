@@ -1,3 +1,4 @@
+// Inicializacao do canvas e variaveis que controlam a partida atual.
 const c=document.getElementById('g'),x=c.getContext('2d');
 x.scale(1.6,1.6);
 
@@ -13,6 +14,7 @@ grenadierSheet.src = 'assets/enemies/grenadier-atlas.png';
 const W=800,H=480,T=32;
 let currentLevelIndex=0;
 let levelData,rows,BASE_COLS,REPEATS,ROWS,COLS,g;
+// Monta a grade da fase e prepara o tamanho do mundo para a camera.
 function configureLevel(index=currentLevelIndex){
   currentLevelIndex=Math.max(0,Math.min(index,window.GameLevels.length-1));
   levelData=window.GameLevels[currentLevelIndex];
@@ -28,10 +30,11 @@ function configureLevel(index=currentLevelIndex){
 configureLevel();
 const solid=(i,j)=>i<0||i>=COLS?true:(j<0||j>=ROWS)?false:g[j][i]==='#';
 let P,E,fireballs,projectiles,snowPickups,ammo=10,coins,total=0,got=0,kills=0,lives=3,state='select',cam=0,flag,tm=0,goalHintUntil=0,goalKills=0,goalCoins=0;
-const MAX_AMMO=50;
+const MAX_AMMO=50; // Limite de municao que o jogador pode carregar.
 const runStep = .08;
 const keys={};
 let padConfirmWasDown=false,padSelectWasDown=false,padBackWasDown=false;
+// Recria moedas, inimigos, itens e jogador quando uma fase recomeca.
 function reset(){
   configureLevel(currentLevelIndex);
   E=[];fireballs=[];projectiles=[];snowPickups=new Set();ammo=window.GameCharacters[selectedCharacterId].startingAmmo;coins=new Set();got=0;kills=0;total=0;flag=null;goalHintUntil=0;goalKills=0;goalCoins=0;
@@ -55,11 +58,13 @@ function reset(){
       if(row>0)snowPickups.add(column+','+(row-1));
     }
   }
+  // As metas acompanham o conteudo da fase: um terco dos inimigos e metade das moedas.
   goalKills=Math.ceil(E.length/3);
   goalCoins=Math.ceil(total/2);
   P={x:64,y:330,w:22,h:30,vx:0,vy:0,ground:false,coy:0,buf:0,face:1,dj:1,runAnimTime:0,landTimer:0,shotCooldown:0};
   cam=0;
 }
+// Move um objeto e impede que atravesse blocos solidos do mapa.
 function move(o,dx,dy){
   o.hitx=false;o.x+=dx;
   if(dx){
@@ -80,12 +85,14 @@ function move(o,dx,dy){
 }
 const hit=(a,b)=>a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;
 let deathTime=0;
+// Trata a perda de vida e retorna a selecao quando as vidas acabam.
 function die(){
   if(state==='dead'||state==='select')return;
   window.GameAudio.play('dead');deathTime=tm;lives--;
   if(lives<=0){currentLevelIndex=0;lives=3;characterIntroPlayed=false;reset();state='select'}
   else state='dead';
 }
+// Inicia a fase, toca a entrada do heroi e prepara sua chegada especial.
 function enterLevel(){
   reset();
   window.GameAudio.startMusic();
@@ -107,6 +114,7 @@ function enterLevel(){
 }
   function restartAfterDeath(){characterIntroPlayed=false;enterLevel()}
   function returnToCharacterSelect(){currentLevelIndex=0;lives=3;characterIntroPlayed=false;reset();state='select';window.GameAudio.startMusic()}
+// Confirma a opcao atual: iniciar, reiniciar, avancar ou voltar ao menu.
 function confirmMenu(){
   if(state==='parachute'||state==='dozerEntry'||state==='dinoEntry'||state==='play')return;
   if(state==='select'){lives=3;enterLevel();return}
@@ -122,6 +130,7 @@ function confirmMenu(){
 function moveCharacterSelection(direction){
   selectedCharacterId=window.CharacterSelect.move(selectedCharacterId,direction);
 }
+// Atualiza controles, fisica, inimigos, ataques, itens e objetivo da fase.
 function update(dt){
   tm+=dt;
   if(state==='dozerEntry' || state==='dinoEntry'){
@@ -244,6 +253,7 @@ function update(dt){
   const want=Math.max(0,Math.min(COLS*T-W,P.x+P.w/2-W/2));
   cam+=(want-cam)*Math.min(1,dt*8);
 }
+// Desenhos vetoriais dos projeteis usados pelos herois.
 function drawKnife(bladeColor='#dbe6ec',handleColor='#243641'){
   x.save();
   x.shadowColor='rgba(0,0,0,.32)';x.shadowBlur=2;x.shadowOffsetY=1;
@@ -319,6 +329,7 @@ function drawWrench(blade='#c9d0d3',handle='#594332'){
   x.restore();
 }
 
+// Desenha as animacoes de cada heroi a partir de seu atlas de sprites.
 function drawSsg12(character,airborne,walking){
   const sprite=character.image;
   if(!sprite.complete||!sprite.naturalWidth)return;
@@ -388,6 +399,7 @@ function drawGridHero(character,airborne,walking){
   x.restore();
 }
 
+// Seleciona e desenha a animacao adequada do inimigo.
 function drawGrenadier(e){
   if(!grenadierSheet.complete||!grenadierSheet.naturalWidth)return;
   let frame;
@@ -501,6 +513,7 @@ function drawJumpMaster(sprite, airborne, walking){
   x.restore();
 }
 
+// Cores e fundos das tres regioes da floresta; cada regiao usa um estilo proprio.
 const forestPalettes={
   edge:{sky:['#173d48','#66855b','#d6aa72'],sun:'#ffe3a0',far:'#416b51',near:'#264f3e',soil:'#553b22',grass:'#508a39',highlight:'#8cc75d'},
   deep:{sky:['#101d31','#29463f','#68734c'],sun:'#d4d49b',far:'#263d3a',near:'#182f31',soil:'#443326',grass:'#3e6335',highlight:'#789747'},
@@ -509,6 +522,7 @@ const forestPalettes={
 function forestRegionAt(column){
   return (levelData.regions||[]).find(region=>column>=region.start&&column<region.end)||{background:'edge'};
 }
+// Desenha o fundo, o mapa, os personagens, os itens e a interface.
 function draw(){
   const region=forestRegionAt((cam+W/2)/T);
   const palette=forestPalettes[region.background]||forestPalettes.edge;
@@ -692,6 +706,7 @@ function draw(){
     x.font='20px system-ui,sans-serif';x.fillText(msg[1],W/2,H/2+30);
   }
 }
+// Mostra as opcoes de reinicio ou retorno a selecao apos a derrota.
 function drawDeathMenu(){
   x.fillStyle='rgba(10,18,28,.82)';x.fillRect(0,0,W,H);
   x.fillStyle='#fff';x.textAlign='center';x.font='bold 36px system-ui,sans-serif';
@@ -709,6 +724,7 @@ function drawDeathMenu(){
   x.font='15px system-ui,sans-serif';
   x.fillText(window.GameI18n.t('restart')+': Enter/R   |   '+window.GameI18n.t('backSelect')+': Esc/C',W/2,350);
 }
+// Controles de teclado, mouse, toque e acesso publico usado pela pagina.
 addEventListener('keydown',ev=>{
   if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Enter'].includes(ev.code))ev.preventDefault();
   if(ev.repeat)return;

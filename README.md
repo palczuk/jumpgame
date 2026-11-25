@@ -15,6 +15,19 @@ Creditos: Desenvolvido por Palczuk J.
 - `js/audio.js`: trilhas e efeitos sonoros.
 - `assets/audio/`: arquivos MP3 do jogo.
 
+## Onde alterar cada parte
+
+| O que voce quer mudar | Arquivo |
+| --- | --- |
+| Posicao de plataformas, buracos, moedas, inimigos e regioes | `js/levels.js` |
+| Controles, movimento, colisao, metas, combate e desenho da partida | `js/game.js` |
+| Ordem, sprites, entrada e ataques dos herois | `js/characters.js` |
+| Cartoes e retratos da selecao de herois | `js/character-select.js` |
+| Caminhos e reproducao de sons | `js/audio.js` |
+| Textos em portugues e ingles | `js/i18n.js` |
+
+Os comentarios em portugues no codigo marcam os principais blocos e explicam a funcao de cada parte.
+
 ## Musicas e efeitos
 
 - `trilhasonora.mp3`: trilha sonora contínua do jogo (em loop).

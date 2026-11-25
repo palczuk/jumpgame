@@ -1,3 +1,4 @@
+// Textos da interface em ingles e portugues; mantenha as chaves iguais nos dois idiomas.
 window.GameI18n = (() => {
   const messages = {
     en: {

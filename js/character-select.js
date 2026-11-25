@@ -1,3 +1,4 @@
+// Imagens usadas nos retratos da tela de selecao.
 const selectionPortraitSheets = {
   original: new Image(),
   caricature: new Image()
@@ -5,6 +6,7 @@ const selectionPortraitSheets = {
 selectionPortraitSheets.original.src = 'assets/selection-portraits-original.png';
 selectionPortraitSheets.caricature.src = 'assets/selection-portraits.png';
 
+// Organiza, troca e desenha as opcoes de personagem.
 window.CharacterSelect = {
   list() {
     return Object.values(window.GameCharacters).sort((a,b)=>a.selectionOrder-b.selectionOrder);

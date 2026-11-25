@@ -1,3 +1,4 @@
+// Caminhos dos arquivos de musica e efeitos sonoros do jogo.
 window.GameAudioFiles = {
   music: 'assets/audio/trilhasonora.mp3',
   lukeIntro: 'assets/audio/superlucas.mp3',
@@ -13,6 +14,7 @@ window.GameAudioFiles = {
   dead: 'assets/audio/dead.mp3'
 };
 
+// Reproduz musica em loop e efeitos uma vez ou a cada acao.
 window.GameAudio = (() => {
   const effects = new Map();
   let music;

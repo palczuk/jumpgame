@@ -1,3 +1,5 @@
+// Configuracao dos herois: ordem no menu, animacao, som de entrada e ataque.
+// Para ajustar um projétil, altere speed, radius, cooldown ou damage no personagem.
 window.GameCharacters = {
   luke: {
     id: 'luke',

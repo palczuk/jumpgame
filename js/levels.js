@@ -1,3 +1,4 @@
+// Tamanho do mapa em blocos; as coordenadas abaixo sao colunas deste mapa.
 const forestWidth=333;
 const forestHeight=15;
 const forestTiles=Array.from({length:forestHeight},()=>Array(forestWidth).fill(' '));
@@ -7,6 +8,8 @@ for(let column=0;column<forestWidth;column++){
   forestTiles[14][column]='#';
 }
 
+// Cada area define buracos, plataformas, moedas e inimigos em posicoes proprias.
+// Plataformas usam [coluna inicial, coluna final, linha]; gaps usam [inicio, largura].
 const forestSections=[
   {
     name:'Forest Edge',
@@ -40,6 +43,7 @@ const forestSections=[
   }
 ];
 
+// Transforma as definicoes das areas em uma grade que o motor consegue ler.
 for(const section of forestSections){
   for(const [start,width] of section.gaps){
     for(let column=start;column<start+width;column++){
