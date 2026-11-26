@@ -5,7 +5,10 @@ function drawSsg12(character,airborne,walking){
   const columns=character.gridColumns,rows=character.gridRows;
   const fw=sprite.naturalWidth/columns,fh=sprite.naturalHeight/rows;
   let frame=0;
-  if(state==='dozerEntry')frame=47;
+  if(state==='dozerEntry'){
+    const progress=Math.max(0,Math.min(.999,(P.y-170)/(H-P.h-170)));
+    frame=42+Math.floor(progress*6);
+  }
   else if(state==='dead'||state==='over')frame=36+Math.min(4,Math.floor((tm-deathTime)/.16));
   else if(state==='play'&&P.shotCooldown>0){
     frame=24+Math.min(5,Math.floor((1-P.shotCooldown/character.projectile.cooldown)*6));
@@ -20,17 +23,11 @@ function drawSsg12(character,airborne,walking){
   x.save();
   if(state==='dozerEntry'){
     const center=P.x+P.w/2, bottom=P.y+P.h;
-    // Mantem a copa e os cordoes dentro da tela durante a entrada.
+    // Reproduz os seis quadros do trator em ordem durante a descida.
     drawDozerParachute(bottom-118,1.42);
-    // Recorta apenas a escavadeira; o homem ao lado no atlas nao e desenhado.
-    x.drawImage(sprite,0,7*fh+70,110,100,center-55,bottom-72,110,80);
-    // O personagem aparece uma unica vez, sentado dentro da cabine.
-    x.save();
-    x.beginPath();
-    x.roundRect(center-25,bottom-62,21,22,3);
-    x.clip();
-    x.drawImage(sprite,0,0,fw,fh,center-40,bottom-69,50,52);
-    x.restore();
+    // Usa a celula inteira do atlas; o recorte antigo ultrapassava a imagem.
+    const sx=(frame%columns)*fw,sy=Math.floor(frame/columns)*fh;
+    x.drawImage(sprite,sx,sy,fw,fh,center-54,bottom-100,108,100);
   }else{
     x.translate(P.x+P.w/2,P.y+P.h+(character.groundOffset||0));x.scale(P.face,1);
     x.drawImage(sprite,sx,sy,fw,fh,-27,-54,54,54);
@@ -49,7 +46,10 @@ function drawGridHero(character,airborne,walking){
     const elapsed=tm-deathTime;
     frame=24+(elapsed<.22?Math.min(1,Math.floor(elapsed/.11)):2+Math.min(2,Math.floor((elapsed-.22)/.16)));
   }else if(state==='dinoEntry')frame=30;
-  else if(state==='parachute')frame=30+Math.min(5,Math.floor((P.y-115)/32));
+  else if(state==='parachute'){
+    const progress=Math.max(0,Math.min(.999,(P.y-115)/(H-P.h-115)));
+    frame=30+Math.floor(progress*6);
+  }
   else if(state==='play'&&P.shotCooldown>.08){
     frame=18+Math.min(4,Math.floor((1-P.shotCooldown/character.projectile.cooldown)*5));
   }else if(airborne)frame=12+(P.vy<-250?0:P.vy<0?1:P.vy<180?2:3);
@@ -72,9 +72,8 @@ function drawGridHero(character,airborne,walking){
     sy=820;sh=200;
   }
   if(character.id==='superSkinny'&&state==='parachute'){
-    // O paraquedas comeca um pouco acima da celula; desenha a arte inteira.
-    sy=1010;sh=sprite.naturalHeight-sy;
-    const height=78,width=sw*height/sh;
+    // Os seis quadros do paraquedas ficam na ultima linha do atlas 6x6.
+    const height=90,width=sw*height/sh;
     x.drawImage(sprite,sx,sy,sw,sh,-width/2,-height,width,height);
   }else{
     // O repouso usa sempre o quadro 0, sem alternancia ou respiracao animada.
