@@ -43,6 +43,7 @@ function forestPaletteAt(column){
 // Desenha as silhuetas das arvores com transparencia durante a transicao.
 // Cria 16 desenhos de grama e 16 de terra por regiao, todos no tamanho fixo do mapa.
 let terrainTileCanvases=null,terrainVariationGrid=null,terrainVariationLevel=-1;
+const blendedTerrainTileCanvases=new Map();
 function terrainRandom(seed){
   let value=seed|0;
   return ()=>{value=(Math.imul(value,1664525)+1013904223)|0;return (value>>>0)/4294967296};
@@ -123,6 +124,26 @@ function getTerrainTile(paletteName,type,variant){
   }
   return terrainTileCanvases[paletteName][type][variant];
 }
+// Gera blocos opacos para a transicao entre regioes, misturando as cores antes do desenho.
+function getBlendedTerrainTile(fromName,toName,amount,type,variant){
+  const step=Math.round(amount*10);
+  if(step<=0)return getTerrainTile(fromName,type,variant);
+  if(step>=10)return getTerrainTile(toName,type,variant);
+  const key=`${fromName}:${toName}:${step}:${type}:${variant}`;
+  if(blendedTerrainTileCanvases.has(key))return blendedTerrainTileCanvases.get(key);
+  const from=forestPalettes[fromName]||forestPalettes.edge;
+  const to=forestPalettes[toName]||forestPalettes.edge;
+  const blend=step/10;
+  const palette={
+    soil:mixForestColor(from.soil,to.soil,blend),
+    grass:mixForestColor(from.grass,to.grass,blend),
+    highlight:mixForestColor(from.highlight,to.highlight,blend)
+  };
+  const tile=document.createElement('canvas');tile.width=T;tile.height=T;
+  drawTerrainBlockArt(tile.getContext('2d'),palette,variant,type==='grass');
+  blendedTerrainTileCanvases.set(key,tile);
+  return tile;
+}
 function drawForestFarTrees(style,color,alpha){
   if(alpha<=0)return;
   x.save();x.globalAlpha=alpha;x.fillStyle=color;
@@ -172,13 +193,10 @@ function draw(){
     if(g[j][i]==='#'){
       const tile=terrainVariationGrid[j][i],blend=forestRegionBlendAt(i+.5);
       const fromName=blend.from.background,toName=blend.to.background;
-      const fromTile=getTerrainTile(fromName,tile.type,tile.variant),toTile=getTerrainTile(toName,tile.type,tile.variant);
-      if(fromName===toName||blend.amount<=0)x.drawImage(fromTile,i*T,j*T,T,T);
-      else if(blend.amount>=1)x.drawImage(toTile,i*T,j*T,T,T);
-      else{
-        x.globalAlpha=1-blend.amount;x.drawImage(fromTile,i*T,j*T,T,T);
-        x.globalAlpha=blend.amount;x.drawImage(toTile,i*T,j*T,T,T);x.globalAlpha=1;
-      }
+      const blockTile=fromName===toName
+        ?getTerrainTile(fromName,tile.type,tile.variant)
+        :getBlendedTerrainTile(fromName,toName,blend.amount,tile.type,tile.variant);
+      x.drawImage(blockTile,i*T,j*T,T,T);
     }
   }
   for(const k of coins){
