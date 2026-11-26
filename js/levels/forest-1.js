@@ -64,6 +64,9 @@ for(const section of forestSections){
   }
 }
 
+// Alguns granadeiros aparecem com armadura azul e preta.
+for(const column of [72,115,149,224,258,293])forestTiles[11][column]='B';
+
 forestTiles[12][330]='F';
 window.GameLevelForest1 = {
     id:'forest-1',

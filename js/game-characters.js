@@ -15,20 +15,21 @@ function drawSsg12(character,airborne,walking){
   else if(walking){
     const start=Math.abs(P.vx)<150?6:12;
     frame=start+Math.floor(P.runAnimTime/runStep)%6;
-  }else frame=Math.floor(tm*4)%4;
+  }else frame=0; // A pose parada fica fixa para nao parecer que o heroi esta andando.
   const sx=(frame%columns)*fw,sy=Math.floor(frame/columns)*fh;
   x.save();
   if(state==='dozerEntry'){
     const center=P.x+P.w/2, bottom=P.y+P.h;
-    drawParachute('#797e43',bottom-118,1.42);
-    // The last cell also contains a standing soldier. Draw just the vehicle.
-    x.drawImage(sprite,sx,sy+fh*.18,fw*.71,fh*.73,center-55,bottom-88,110,88);
-    // Frame zero supplies the operator visible through the cab window.
+    // Mantem a copa e os cordoes dentro da tela durante a entrada.
+    drawDozerParachute(bottom-118,1.42);
+    // Recorta apenas a escavadeira; o homem ao lado no atlas nao e desenhado.
+    x.drawImage(sprite,0,7*fh+70,110,100,center-55,bottom-72,110,80);
+    // O personagem aparece uma unica vez, sentado dentro da cabine.
     x.save();
     x.beginPath();
-    x.roundRect(center-24,bottom-66,19,25,3);
+    x.roundRect(center-25,bottom-62,21,22,3);
     x.clip();
-    x.drawImage(sprite,0,0,fw,fh,center-38,bottom-68,48,50);
+    x.drawImage(sprite,0,0,fw,fh,center-40,bottom-69,50,52);
     x.restore();
   }else{
     x.translate(P.x+P.w/2,P.y+P.h+(character.groundOffset||0));x.scale(P.face,1);
@@ -64,28 +65,43 @@ function drawGridHero(character,airborne,walking){
   x.save();
   x.translate(P.x+P.w/2,P.y+P.h+(character.groundOffset||0));
   x.scale(P.face,1);
-  x.drawImage(sprite,(frame%columns)*fw,Math.floor(frame/columns)*fh,fw,fh,-27,-54,54,54);
+  const sx=(frame%columns)*fw;
+  let sy=Math.floor(frame/columns)*fh,sw=fw,sh=fh;
+  if(character.id==='superSkinny'&&(state==='dead'||state==='over')){
+    // Ajuste fino evita cortar o topo da animacao de queda.
+    sy=820;sh=200;
+  }
+  if(character.id==='superSkinny'&&state==='parachute'){
+    // O paraquedas comeca um pouco acima da celula; desenha a arte inteira.
+    sy=1010;sh=sprite.naturalHeight-sy;
+    const height=78,width=sw*height/sh;
+    x.drawImage(sprite,sx,sy,sw,sh,-width/2,-height,width,height);
+  }else{
+    // O repouso usa sempre o quadro 0, sem alternancia ou respiracao animada.
+    x.drawImage(sprite,sx,sy,sw,sh,-27,-54,54,54);
+  }
   x.restore();
 }
 
 // Seleciona e desenha a animacao adequada do inimigo.
 function drawGrenadier(e){
-  if(!grenadierSheet.complete||!grenadierSheet.naturalWidth)return;
+  const sprite=e.kind==='blueGrenadier'?blueGrenadierSheet:grenadierSheet;
+  if(!sprite.complete||!sprite.naturalWidth)return;
   let frame;
   if(e.dying){
-    frame=12+Math.min(5,Math.floor((tm-e.deathStarted)/.14));
+    frame=16+Math.min(7,Math.floor((tm-e.deathStarted)/.105));
   }else if(e.shooting){
-    frame=6+Math.min(5,Math.floor((tm-e.shootStart)/.11));
+    frame=8+Math.min(7,Math.floor((tm-e.shootStart)/.09));
   }else{
-    frame=Math.floor((tm+(e.animOffset||0))*5)%6;
+    frame=Math.floor((tm+(e.animOffset||0))*7)%8;
   }
-  const frameWidth=grenadierSheet.naturalWidth/6;
-  const frameHeight=grenadierSheet.naturalHeight/3;
+  const frameWidth=sprite.naturalWidth/8;
+  const frameHeight=sprite.naturalHeight/3;
   const faceLeft=P.x+P.w/2<e.x+e.w/2;
   x.save();
   x.translate(e.x+e.w/2,e.y+e.h+6);
   x.scale(faceLeft?1:-1,1);
-  x.drawImage(grenadierSheet,(frame%6)*frameWidth,Math.floor(frame/6)*frameHeight,frameWidth,frameHeight,-30,-60,60,60);
+  x.drawImage(sprite,(frame%8)*frameWidth,Math.floor(frame/8)*frameHeight,frameWidth,frameHeight,-30,-60,60,60);
   x.restore();
 }
 
@@ -105,6 +121,46 @@ function drawParachute(color='#e6b861', canopyY=P.y-58, scale=1){
   x.quadraticCurveTo(24,-3,0,5);
   x.quadraticCurveTo(-24,-3,-46,7);
   x.closePath();x.fill();x.stroke();
+  x.restore();
+}
+
+// Paraquedas segmentado, com linhas de suspensao ancoradas na escavadeira.
+function drawDozerParachute(canopyY,scale=1){
+  x.save();
+  x.translate(P.x+P.w/2,canopyY);
+  x.scale(scale,scale);
+  const canopy=()=>{
+    x.beginPath();
+    x.moveTo(-50,7);
+    x.bezierCurveTo(-46,-22,-24,-40,0,-40);
+    x.bezierCurveTo(24,-40,46,-22,50,7);
+    x.quadraticCurveTo(25,1,0,8);
+    x.quadraticCurveTo(-25,1,-50,7);
+    x.closePath();
+  };
+  canopy();x.fillStyle='#738a3b';x.fill();
+  x.save();canopy();x.clip();
+  const panelEdges=[-50,-30,-10,10,30,50];
+  for(let i=0;i<panelEdges.length-1;i++){
+    const left=panelEdges[i],right=panelEdges[i+1];
+    const leftY=3+4*(left/50)**2,rightY=3+4*(right/50)**2;
+    x.beginPath();x.moveTo(0,-39);x.lineTo(left,leftY);
+    x.quadraticCurveTo((left+right)/2,6,right,rightY);
+    x.closePath();x.fillStyle=i%2?'#9eae57':'#849c49';x.fill();
+  }
+  x.restore();
+  canopy();x.strokeStyle='#34452b';x.lineWidth=1.6;x.stroke();
+  x.strokeStyle='#d0d2a0';x.lineWidth=1;
+  for(const edge of [-30,-10,10,30]){
+    x.beginPath();x.moveTo(0,-38);x.lineTo(edge,3+4*(edge/50)**2);x.stroke();
+  }
+  for(const side of [-1,1]){
+    x.beginPath();
+    x.moveTo(side*43,5);x.lineTo(side*20,53);
+    x.moveTo(side*24,4);x.lineTo(side*10,53);
+    x.moveTo(side*6,7);x.lineTo(0,53);
+    x.stroke();
+  }
   x.restore();
 }
 
@@ -139,46 +195,50 @@ function drawSpriteStrip(character, airborne, walking){
   x.restore();
 }
 
-// Original portrait coordinates, used as pivots to animate the legs.
-const jumpMasterLegs=[
-  {hip:[473,785],edge:[[390,762],[554,778],[552,874],[481,1140],[394,1430],[205,1430],[211,1065],[306,839]]},
-  {hip:[649,785],edge:[[547,778],[724,758],[788,832],[810,1130],[859,1430],[560,1430],[539,1072],[552,874]]}
-];
-function drawJumpMaster(sprite, airborne, walking){
+// Quadros do atlas do Jump Master: cada pose tem seu recorte real, sem mascaras nas pernas.
+const jumpMasterFrames={
+  idle:[[54,3,119,207],[256,3,124,207],[462,4,125,206],[678,4,128,206]],
+  run:[[42,214,143,193],[247,214,143,194],[443,216,156,164],[645,218,149,189],[845,214,149,193],[1032,214,178,193]],
+  jump:[[44,444,134,155],[254,421,136,175],[442,395,164,180],[670,421,124,175]],
+  knife:[[41,604,143,186],[243,603,149,186],[445,600,169,180],[648,603,169,183],[853,600,171,190]],
+  hit:[[46,794,143,170],[245,804,143,160],[424,825,169,138],[630,857,178,103],[838,874,191,84]],
+  parachute:[[18,971,276,270],[335,971,276,270],[636,971,276,270],[957,971,276,270]]
+};
+// Desenha quadros completos do Jump Master, inclusive o paraquedas que faz parte do atlas.
+function drawJumpMasterAtlas(character,airborne,walking){
+  const sprite=character.image;
   if(!sprite.complete||!sprite.naturalWidth)return;
-  const pose=Math.floor(P.runAnimTime/runStep)%10;
-  const stride=walking ? Math.sin(pose*Math.PI/5)*.32 : 0;
-  const landing=P.landTimer>0&&!airborne;
-  x.save();
-  x.translate(P.x+P.w/2,P.y+P.h+(window.GameCharacters[selectedCharacterId].groundOffset||0));
-  x.scale(P.face,1);
-  x.rotate(walking ? .09 : airborne && state!=='parachute' ? -.07 : 0);
-  x.scale(50/1405,50/1405*(landing ? .87 : 1));
-  x.translate(-540,-1405+(walking ? Math.abs(stride)*36 : 0));
-  const drawPortrait=()=>x.drawImage(sprite,0,0,1080,1440);
-  if(!walking&&!airborne){
-    drawPortrait();
+  let frames=jumpMasterFrames.idle,index=0,destHeight=54;
+  if(state==='parachute'){
+    frames=jumpMasterFrames.parachute;
+    const progress=Math.max(0,Math.min(.999,(P.y-115)/(H-150)));
+    index=Math.floor(progress*frames.length);
+    // O quadro do paraquedas mede 92 px; o soldado dentro dele fica com cerca de 54 px.
+    destHeight=92;
+  }else if(state==='dead'||state==='over'){
+    frames=jumpMasterFrames.hit;
+    index=Math.min(frames.length-1,Math.floor(Math.max(0,tm-deathTime)/.17));
+  }else if(state==='play'&&P.shotCooldown>0){
+    frames=jumpMasterFrames.knife;
+    const progress=1-P.shotCooldown/character.projectile.cooldown;
+    index=Math.min(frames.length-1,Math.floor(progress*frames.length));
+  }else if(P.landTimer>0){
+    frames=jumpMasterFrames.jump;
+    index=3;
+  }else if(airborne){
+    frames=jumpMasterFrames.jump;
+    index=P.vy<-320?1:P.vy<0?2:3;
+  }else if(walking){
+    frames=jumpMasterFrames.run;
+    index=Math.floor(P.runAnimTime/runStep)%frames.length;
   }else{
-    jumpMasterLegs.forEach(({hip,edge},index)=>{
-      x.save();
-      x.translate(...hip);
-      x.rotate(airborne ? (state==='parachute' ? (index===0 ? .08 : -.08) : (index===0 ? .39 : -.47)) : (index===0 ? stride : -stride));
-      x.translate(-hip[0],-hip[1]);
-      x.beginPath();
-      x.moveTo(...edge[0]);
-      for(const point of edge.slice(1))x.lineTo(...point);
-      x.closePath();x.clip();
-      drawPortrait();
-      x.restore();
-    });
-    x.save();
-    x.beginPath();
-    x.moveTo(0,0);x.lineTo(1080,0);x.lineTo(1080,880);
-    x.lineTo(775,880);x.lineTo(724,798);x.lineTo(390,798);
-    x.lineTo(340,880);x.lineTo(0,880);x.closePath();x.clip();
-    drawPortrait();
-    x.restore();
+    index=0;
   }
+  const [sx,sy,sw,sh]=frames[index];
+  const destWidth=sw*destHeight/sh;
+  const center=P.x+P.w/2,bottom=P.y+P.h+(character.groundOffset||0);
+  x.save();x.translate(center,0);x.scale(P.face,1);
+  x.drawImage(sprite,sx,sy,sw,sh,-destWidth/2,bottom-destHeight,destWidth,destHeight);
   x.restore();
 }
 

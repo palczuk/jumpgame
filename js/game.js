@@ -10,6 +10,8 @@ for (const character of Object.values(window.GameCharacters)) {
 }
 const grenadierSheet = new Image();
 grenadierSheet.src = 'assets/enemies/grenadier-atlas.png';
+const blueGrenadierSheet = new Image();
+blueGrenadierSheet.src = 'assets/enemies/blue-grenadier-atlas.png';
 
 const W=800,H=480,T=32;
 let currentLevelIndex=0;
@@ -42,13 +44,13 @@ function reset(){
     for(let row=Math.max(1,fromRow);row<ROWS;row++)if(solid(column,row)&&!solid(column,row-1))return row;
     return -1;
   };
-  const addEnemy=(column,row)=>E.push({kind:'grenadier',x:column*T-5,y:row*T-40,w:34,h:40,vx:E.length%2?-35:35,vy:0,shot:0.65+(column%4)*0.28,hp:2,shooting:false,shotFired:false,animOffset:(column%6)*.12});
+  const addEnemy=(column,row,kind='grenadier')=>E.push({kind,x:column*T-5,y:row*T-40,w:34,h:40,vx:E.length%2?-35:35,vy:0,shot:0.65+(column%4)*0.28,hp:2,shooting:false,shotFired:false,animOffset:(column%8)*.12});
   for(let j=0;j<ROWS;j++)for(let i=0;i<COLS;i++){
     const ch=g[j][i];
     if(ch==='o'){coins.add(i+','+j);total++}
     if(ch==='E'||ch==='B'){
       const floor=surfaceRow(i,j+1);
-      if(floor>0)addEnemy(i,floor);
+      if(floor>0)addEnemy(i,floor,ch==='B'?'blueGrenadier':'grenadier');
     }
     if(ch==='F')flag={x:i*T+8,y:j*T-64,w:16,h:96};
   }
@@ -61,7 +63,7 @@ function reset(){
   // As metas acompanham o conteudo da fase: um terco dos inimigos e metade das moedas.
   goalKills=Math.ceil(E.length/3);
   goalCoins=Math.ceil(total/2);
-  P={x:64,y:330,w:22,h:30,vx:0,vy:0,ground:false,coy:0,buf:0,face:1,dj:1,runAnimTime:0,landTimer:0,shotCooldown:0};
+  P={x:64,y:330,w:22,h:30,vx:0,vy:0,ground:false,coy:0,buf:0,face:1,dj:1,runAnimTime:0,landTimer:0,shotCooldown:0,mortarHits:0,mortarInvulnerableUntil:0};
   cam=0;
 }
 // Move um objeto e impede que atravesse blocos solidos do mapa.
@@ -84,6 +86,19 @@ function move(o,dx,dy){
   }
 }
 const hit=(a,b)=>a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;
+function shellTouchesHero(x0,y0,x1,y1,r,hero){
+  const left=hero.x-r,right=hero.x+hero.w+r,top=hero.y-r,bottom=hero.y+hero.h+r;
+  let enter=0,exit=1;
+  for(const [start,end,min,max] of [[x0,x1,left,right],[y0,y1,top,bottom]]){
+    const delta=end-start;
+    if(Math.abs(delta)<1e-8){if(start<min||start>max)return false;continue}
+    let near=(min-start)/delta,far=(max-start)/delta;
+    if(near>far)[near,far]=[far,near];
+    enter=Math.max(enter,near);exit=Math.min(exit,far);
+    if(enter>exit)return false;
+  }
+  return true;
+}
 let deathTime=0;
 // Trata a perda de vida e retorna a selecao quando as vidas acabam.
 function die(){
@@ -104,7 +119,8 @@ function enterLevel(){
   state='play';
   if(character.dozerEntry || character.dinoEntry){
     P.x=150;
-    P.y=8;
+    // A entrada com paraquedas comeca mais abaixo para deixar a copa visivel.
+    P.y=character.dozerEntry ? 170 : 8;
     P.ground=false;
     state=character.dozerEntry ? 'dozerEntry' : 'dinoEntry';
   }else if (character.parachuteEntry) {

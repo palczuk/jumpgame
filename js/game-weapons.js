@@ -1,5 +1,26 @@
 // Desenhos vetoriais dos projeteis usados pelos herois.
+const knifeProjectileSprite = new Image();
+knifeProjectileSprite.src = 'assets/knife-projectile.png';
+const bananaProjectileSprite = new Image();
+bananaProjectileSprite.src = 'assets/banana-projectile.png';
+const wrenchProjectileSprite = new Image();
+wrenchProjectileSprite.src = 'assets/wrench-projectile.png';
+const shovelProjectileSprite = new Image();
+shovelProjectileSprite.src = 'assets/shovel-projectile.png';
+const snowballProjectileSprite = new Image();
+snowballProjectileSprite.src = 'assets/snowball-projectile.png';
+const enemyMortarShellSprite = new Image();
+enemyMortarShellSprite.src = 'assets/enemy-mortar-shell.png';
+const blueEnemyMortarShellSprite = new Image();
+blueEnemyMortarShellSprite.src = 'assets/enemy-mortar-shell-blue.png';
+const enemyMortarExplosionSprite = new Image();
+enemyMortarExplosionSprite.src = 'assets/mortar-impact-8frames.png';
+
 function drawKnife(bladeColor='#dbe6ec',handleColor='#243641'){
+  if(knifeProjectileSprite.complete&&knifeProjectileSprite.naturalWidth){
+    x.drawImage(knifeProjectileSprite,-14,-4.5,28,9);
+    return;
+  }
   x.save();
   x.shadowColor='rgba(0,0,0,.32)';x.shadowBlur=2;x.shadowOffsetY=1;
   const handle=x.createLinearGradient(-12,-4,-4,4);
@@ -24,6 +45,10 @@ function drawKnife(bladeColor='#dbe6ec',handleColor='#243641'){
 }
 
 function drawBanana(color='#ffdc43',outline='#8f5717'){
+  if(bananaProjectileSprite.complete&&bananaProjectileSprite.naturalWidth){
+    x.drawImage(bananaProjectileSprite,-15,-12,30,24);
+    return;
+  }
   x.save();x.shadowColor='rgba(94,57,9,.28)';x.shadowBlur=2;x.shadowOffsetY=1;
   const peel=x.createLinearGradient(-7,-14,5,13);
   peel.addColorStop(0,'#fff3a0');peel.addColorStop(.25,'#ffe54e');peel.addColorStop(.68,color);peel.addColorStop(1,'#d89116');
@@ -47,13 +72,27 @@ function drawBanana(color='#ffdc43',outline='#8f5717'){
 }
 
 function drawShovel(blade='#c9d0d3',handle='#594332'){
+  if(shovelProjectileSprite.complete&&shovelProjectileSprite.naturalWidth){
+    x.drawImage(shovelProjectileSprite,-14,-12,28,24);
+    return;
+  }
   x.strokeStyle=handle;x.lineWidth=3;x.lineCap='round';
   x.beginPath();x.moveTo(-9,5);x.lineTo(5,-4);x.stroke();
   x.fillStyle=blade;x.strokeStyle='#34414a';x.lineWidth=1;
   x.beginPath();x.moveTo(3,-7);x.lineTo(12,-8);x.lineTo(15,-3);x.lineTo(8,1);x.lineTo(4,-2);x.closePath();x.fill();x.stroke();
 }
 
+function drawSnowballProjectile(){
+  if(!snowballProjectileSprite.complete||!snowballProjectileSprite.naturalWidth)return false;
+  x.drawImage(snowballProjectileSprite,-10,-8,20,16);
+  return true;
+}
+
 function drawWrench(blade='#c9d0d3',handle='#594332'){
+  if(wrenchProjectileSprite.complete&&wrenchProjectileSprite.naturalWidth){
+    x.drawImage(wrenchProjectileSprite,-20,-14,40,28);
+    return;
+  }
   x.save();
   x.scale(.78,.78);
   x.lineCap='round';x.lineJoin='round';

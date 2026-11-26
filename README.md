@@ -71,7 +71,7 @@ Se o navegador bloquear algum recurso ao abrir o arquivo diretamente, execute `p
 
 ## Inimigos
 
-Os inimigos marcados como `E` e `B` nas fases usam o mesmo granadeiro militar. Ele mira e dispara foguetes, precisa de dois acertos para ser derrotado e mostra a animacao de morte antes de desaparecer. A folha `assets/enemies/grenadier-atlas.png` tem 6 quadros de prontidao, 6 de disparo e 6 de derrota.
+Os inimigos marcados como `E` usam o granadeiro vermelho e preto; os marcados como `B` usam o segundo inimigo azul e preto. Ambos miram e disparam morteiros, precisam de dois acertos para serem derrotados e mostram a animacao de derrota antes de desaparecer. Cada atlas em `assets/enemies/` tem 8 quadros de prontidao, 8 de disparo e 8 de derrota.
 
 ## SSG 12 November
 
@@ -90,3 +90,7 @@ Para concluir a primeira fase, alcance a bandeira, derrote pelo menos um terco d
 ## Super PACO
 
 O quinto personagem usa `assets/paco-sprites.png`, um atlas 6 x 6 com repouso, corrida, salto, arremesso de chave, derrota e entrada de paraquedas. Ele inicia com 10 chaves, causa 1 ponto de dano e arremessa a ferramenta por ate 10 blocos. O som de entrada esta configurado em `assets/audio/paco.mp3`.
+
+## Jump Master
+
+O Jump Master agora usa `assets/jumpmaster-sprites-v2.png` com quadros completos para repouso, corrida, salto, arremesso de faca, dano/queda e entrada de paraquedas. Os recortes de cada pose ficam em `jumpMasterFrames`, em `js/game-characters.js`; para ajustar escala e tempo da animacao, edite `drawJumpMasterAtlas`. O som de entrada continua configurado em `js/characters.js` e usa `assets/audio/jumpmaster.mp3`.
