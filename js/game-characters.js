@@ -84,7 +84,7 @@ function drawGridHero(character,airborne,walking){
 
 // Seleciona e desenha a animacao adequada do inimigo.
 function drawGrenadier(e){
-  const sprite=e.kind==='blueGrenadier'?blueGrenadierSheet:grenadierSheet;
+  const sprite=e.kind==='greenScout'?greenScoutSheet:e.kind==='blueGrenadier'?blueGrenadierSheet:grenadierSheet;
   if(!sprite.complete||!sprite.naturalWidth)return;
   let frame;
   if(e.dying){

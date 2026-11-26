@@ -26,6 +26,7 @@ c.addEventListener('click',event=>{
   const bounds=c.getBoundingClientRect();
   const px=(event.clientX-bounds.left)*W/bounds.width;
   const py=(event.clientY-bounds.top)*H/bounds.height;
+  if(state==='win'){confirmMenu();return}
   if(state==='dead'||state==='over'){
     if(py>=250&&py<=314){
       if(px>=188&&px<=388)restartAfterDeath();

@@ -57,26 +57,26 @@ for(const section of forestSections){
   }
   for(const column of section.groundCoins)forestTiles[12][column]='o';
   for(const column of section.raisedCoins)forestTiles[8][column]='o';
-  for(const column of section.groundEnemies)forestTiles[11][column]='E';
+  for(const column of section.groundEnemies)forestTiles[11][column]='G';
   for(const column of section.platformEnemies){
     const platform=section.platforms.find(([start,end])=>column>=start&&column<=end);
-    forestTiles[platform[2]-1][column]='E';
+    forestTiles[platform[2]-1][column]='G';
   }
 }
 
-// Alguns granadeiros aparecem com armadura azul e preta.
-for(const column of [72,115,149,224,258,293])forestTiles[11][column]='B';
-
 forestTiles[12][330]='F';
-window.GameLevelForest1 = {
-    id:'forest-1',
-    name:'Floresta do Crepusculo',
+window.GameLevelJungle3 = {
+    id:'jungle-3',
+    name:'Jungle - Fase 3 (desativada)',
+    world:'Jungle',
+    phase:3,
+    enabled:false,
     repeats:1,
-    ammoPickupColumns:[15,44,96,117,151,193,230,267,300],
+    ammoPickupColumns:[],
     regions:[
-      {start:0,end:111,name:'Forest Edge',background:'edge'},
-      {start:111,end:222,name:'Deep Forest',background:'deep'},
-      {start:222,end:333,name:'Forest Clearing',background:'clearing'}
+      {start:0,end:111,name:'Jungle Trail',background:'edge'},
+      {start:111,end:222,name:'Deep Jungle',background:'deep'},
+      {start:222,end:333,name:'Jungle Clearing',background:'clearing'}
     ],
     rows:forestTiles.map(row=>row.join(''))
   };

@@ -233,6 +233,13 @@ function draw(){
     x.fillStyle='#f6fdff';x.strokeStyle='#9bdfff';x.lineWidth=2;x.beginPath();x.arc(px,py,8,0,Math.PI*2);x.fill();x.stroke();
     x.fillStyle='#d7f4ff';x.beginPath();x.arc(px-2,py-2,3,0,Math.PI*2);x.fill();
   }
+  if(checkpointFlag){
+    const progress=checkpointFlag.raisedAt===null?0:Math.max(0,Math.min(1,(tm-checkpointFlag.raisedAt)/.7));
+    const bannerY=checkpointFlag.y+62-54*progress;
+    x.fillStyle='#aaa';x.fillRect(checkpointFlag.x+6,checkpointFlag.y,4,checkpointFlag.h);
+    x.fillStyle=checkpointReached?'#66d775':'#a5a16a';
+    x.beginPath();x.moveTo(checkpointFlag.x+10,bannerY);x.lineTo(checkpointFlag.x+34,bannerY+8);x.lineTo(checkpointFlag.x+10,bannerY+17);x.closePath();x.fill();
+  }
   x.fillStyle='#ddd';x.fillRect(flag.x+6,flag.y,4,flag.h);
   x.fillStyle='#7be0c3';x.beginPath();x.moveTo(flag.x+10,flag.y+4);x.lineTo(flag.x+40,flag.y+18);x.lineTo(flag.x+10,flag.y+32);x.fill();
   for(const e of E)drawGrenadier(e);
@@ -266,6 +273,13 @@ function draw(){
         x.fillStyle='#522922';x.beginPath();x.moveTo(-7,-4);x.lineTo(-11,-7);x.lineTo(-5,-4);x.moveTo(-7,4);x.lineTo(-11,7);x.lineTo(-5,4);x.fill();
       }
     }
+    x.restore();
+  }
+  for(const b of enemyBullets){
+    x.save();x.translate(b.x,b.y);x.rotate(Math.atan2(b.vy,b.vx));
+    x.shadowColor='#72ff28';x.shadowBlur=8;
+    x.fillStyle='#4fdf17';x.beginPath();x.ellipse(0,0,6,2.6,0,0,Math.PI*2);x.fill();
+    x.shadowBlur=0;x.fillStyle='#d9ff9a';x.beginPath();x.ellipse(-1,-.7,2.3,.8,0,0,Math.PI*2);x.fill();
     x.restore();
   }
   for(const b of projectiles){
@@ -350,6 +364,16 @@ function draw(){
   x.font='15px system-ui,sans-serif';
   x.fillText(window.GameI18n.t(window.GameCharacters[selectedCharacterId].projectile.labelKey)+': '+ammo,16,49);
   x.textAlign='right';x.fillText(window.GameI18n.t('lives')+': '+lives,W-16,28);
+  if(levelData.healthCells){
+    const slots=levelData.healthCells,slotWidth=19,gap=4,totalWidth=slots*slotWidth+(slots-1)*gap;
+    const startX=(W-totalWidth)/2;
+    for(let index=0;index<slots;index++){
+      x.fillStyle=index<P.health?'#48d86a':'rgba(12,28,25,.68)';
+      x.fillRect(startX+index*(slotWidth+gap),11,slotWidth,13);
+      x.strokeStyle=index<P.health?'#c8ffc5':'#a7b3a1';x.lineWidth=1.5;
+      x.strokeRect(startX+index*(slotWidth+gap),11,slotWidth,13);
+    }
+  }
   if(goalHintUntil>tm){
     x.fillStyle='rgba(30,18,10,.86)';x.fillRect(130,72,540,44);
     x.fillStyle='#ffe58a';x.textAlign='center';x.font='bold 16px system-ui,sans-serif';x.fillText(window.GameI18n.t('objectiveHint'),W/2,100);
@@ -359,8 +383,14 @@ function draw(){
   else if((state==='dead'||state==='over')&&(!window.GameCharacters[selectedCharacterId].tacticalAnimations||tm-deathTime>=.77))drawDeathMenu();
   else if(msg){
     x.fillStyle='rgba(20,10,35,.6)';x.fillRect(0,0,W,H);
-    x.fillStyle='#fff';x.textAlign='center';x.font='bold 36px system-ui,sans-serif';x.fillText(msg[0],W/2,H/2-8);
-    x.font='20px system-ui,sans-serif';x.fillText(msg[1],W/2,H/2+30);
+    x.fillStyle='#fff';x.textAlign='center';
+    if(levelData.winMessage){
+      x.font='bold 30px system-ui,sans-serif';x.fillText(levelData.winMessage,W/2,H/2-8);
+      x.font='17px system-ui,sans-serif';x.fillText('Press Enter, Space or click to return to the title screen',W/2,H/2+30);
+    }else{
+      x.font='bold 36px system-ui,sans-serif';x.fillText(msg[0],W/2,H/2-8);
+      x.font='20px system-ui,sans-serif';x.fillText(msg[1],W/2,H/2+30);
+    }
   }
 }
 // Mostra as opcoes de reinicio ou retorno a selecao apos a derrota.

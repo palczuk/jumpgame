@@ -63,6 +63,10 @@ function update(dt){
     const k=i+','+j;
     if(coins.has(k)&&Math.hypot(i*T+16-(P.x+11),j*T+16-(P.y+15))<24){coins.delete(k);got++;window.GameAudio.play('coin')}
   }
+  if(checkpointFlag&&!checkpointReached&&P.x+P.w>=checkpointFlag.x){
+    checkpointReached=true;
+    checkpointFlag.raisedAt=tm;
+  }
   for(const k of snowPickups){
     const [i,j]=k.split(',').map(Number);
     if(Math.hypot(i*T+16-(P.x+P.w/2),j*T+16-(P.y+P.h/2))<27){snowPickups.delete(k);ammo=Math.min(MAX_AMMO,ammo+5);window.GameAudio.play('ammo')}
@@ -81,23 +85,28 @@ function update(dt){
     if(e.shooting){
       const elapsed=tm-e.shootStart;
       if(!e.shotFired&&elapsed>=.18){
-        const flight=Math.max(.48,Math.min(1.25,Math.abs(dx)/220));
         const sx=e.x+e.w/2+Math.sign(dx)*12,sy=e.y+e.h*.38;
-        const ty=P.y+P.h/2,gravity=560;
-        fireballs.push({x:sx,y:sy,vx:dx/flight,vy:(ty-sy-.5*gravity*flight*flight)/flight,r:8,life:3.5,blastRadius:T*1.6,explosionDuration:.32,exploding:false,damageApplied:false,shell:e.kind==='blueGrenadier'?'blue':'normal',damage:e.kind==='blueGrenadier'?2:1});
+        if(e.kind==='greenScout'){
+          const dy=P.y+P.h/2-sy,length=Math.max(1,Math.hypot(dx,dy)),speed=250;
+          enemyBullets.push({x:sx,y:sy,vx:dx/length*speed,vy:dy/length*speed,r:4,life:(10*T)/speed});
+        }else{
+          const flight=Math.max(.48,Math.min(1.25,Math.abs(dx)/220));
+          const ty=P.y+P.h/2,gravity=560;
+          fireballs.push({x:sx,y:sy,vx:dx/flight,vy:(ty-sy-.5*gravity*flight*flight)/flight,r:8,life:3.5,blastRadius:T*1.6,explosionDuration:.32,exploding:false,damageApplied:false,shell:e.kind==='blueGrenadier'?'blue':'normal',damage:e.kind==='blueGrenadier'?2:1});
+        }
         window.GameAudio.play('enemyFire');
         e.shotFired=true;
       }
       if(elapsed>=.72)e.shooting=false;
-    }else if(e.shot<=0&&Math.abs(dx)<460){
+    }else if(e.shot<=0&&Math.abs(dx)<(e.kind==='greenScout'?10*T:460)){
       e.shooting=true;
       e.shootStart=tm;
       e.shotFired=false;
-      e.shot=1.6;
+      e.shot=e.kind==='greenScout'?2.5:1.6;
     }
     if(hit(P,e)){
       if(P.vy>0&&P.y+P.h-e.y<20){P.vy=-380}
-      else{die();return}
+      else if(damageHero(P.x+P.w/2<e.x+e.w/2?-1:1))return;
     }
   }
   for(const b of projectiles){
@@ -106,16 +115,25 @@ function update(dt){
     b.spin += b.spinSpeed * tempoDeVoo;
     b.life -= tempoDeVoo;
     const target=E.find(e=>!e.dying&&hit({x:b.x-b.r,y:b.y-b.r,w:b.r*2,h:b.r*2},e));
-    if(target){target.hp-=b.damage;b.life=0;if(target.hp<=0){target.dying=true;target.deathStarted=tm;target.shooting=false;target.vx=0;target.vy=0;kills++;window.GameAudio.play('enemyDefeat')}}
+    if(target){
+      target.hp-=b.damage;b.life=0;
+      if(target.hp<=0){
+        target.dying=true;target.deathStarted=tm;target.shooting=false;target.vx=0;target.vy=0;kills++;window.GameAudio.play('enemyDefeat');
+        if(target.dropsAmmo){
+          const pickupColumn=Math.floor((target.x+target.w/2)/T);
+          const pickupRow=Math.max(0,Math.floor((target.y+target.h/2)/T));
+          snowPickups.add(pickupColumn+','+pickupRow);
+        }
+      }
+    }
   }
   for(const f of fireballs){
     if(f.exploding){f.life-=dt;continue}
     const previousX=f.x,previousY=f.y,previousBottom=f.y+f.r;
     f.vy+=560*dt;f.x+=f.vx*dt;f.y+=f.vy*dt;f.life-=dt;
     if(!f.damageApplied&&shellTouchesHero(previousX,previousY,f.x,f.y,f.r,P)){
-      f.damageApplied=true;P.mortarHits+=f.damage;P.mortarInvulnerableUntil=tm+.75;
-      P.vx=P.x+P.w/2<f.x?-220:220;P.vy=-260;P.ground=false;
-      if(P.mortarHits>=2){die();return}
+      f.damageApplied=true;
+      if(damageHeroFromMortar(f.damage,P.x+P.w/2<f.x?-1:1))return;
     }
     let impactRow=-1;
     for(let row=Math.max(0,ROWS-2);row<ROWS&&impactRow<0;row++){
@@ -134,12 +152,20 @@ function update(dt){
       const closestY=Math.max(P.y,Math.min(f.y,P.y+P.h));
       const nearby=Math.hypot(f.x-closestX,f.y-closestY)<=f.blastRadius;
       if(nearby&&!f.damageApplied&&(f.damage>=2||tm>=P.mortarInvulnerableUntil)){
-        f.damageApplied=true;P.mortarHits+=f.damage;P.mortarInvulnerableUntil=tm+.75;
-        P.vx=P.x+P.w/2<f.x?-220:220;P.vy=-260;P.ground=false;
-        if(P.mortarHits>=2){die();return}
+        f.damageApplied=true;
+        if(damageHeroFromMortar(f.damage,P.x+P.w/2<f.x?-1:1))return;
       }
     }
   }
+  for(const b of enemyBullets){
+    b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;
+    if(solid(Math.floor(b.x/T),Math.floor(b.y/T))){b.life=0;continue}
+    if(hit(P,{x:b.x-b.r,y:b.y-b.r,w:b.r*2,h:b.r*2})){
+      b.life=0;
+      if(damageHero(P.x+P.w/2<b.x?-1:1))return;
+    }
+  }
+  enemyBullets=enemyBullets.filter(b=>b.life>0&&b.x>-100&&b.x<COLS*T+100&&b.y>-100&&b.y<ROWS*T+100);
   fireballs=fireballs.filter(f=>f.life>0&&f.x>-100&&f.x<COLS*T+100&&f.y<H+500);
   projectiles=projectiles.filter(b=>b.life>0&&b.x>-100&&b.x<COLS*T+100);
   E=E.filter(e=>!e.dying||tm-e.deathStarted<.84);

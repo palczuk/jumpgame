@@ -13,7 +13,8 @@ Creditos: Desenvolvido por Palczuk J.
 - `js/game-characters.js`: animacoes dos herois e inimigos.
 - `js/game-render.js`: cenarios, terreno, HUD e menus.
 - `js/game-controls.js`: teclado, mouse, toque e inicializacao do ciclo do jogo.
-- `js/levels/forest-1.js`: mapa e configuracao da primeira fase.
+- `js/levels/jungle-1.js`: mapa e configuracao ativa da primeira fase de Jungle.
+- `js/levels/jungle-3.js`: fase 3 preservada e desabilitada para ativacao futura.
 - `js/levels.js`: lista que registra as fases disponiveis.
 - `js/characters.js`: personagens, sprites, sons de entrada e ataques.
 - `js/character-select.js`: tela de selecao de personagem.
@@ -25,8 +26,8 @@ Creditos: Desenvolvido por Palczuk J.
 
 | O que voce quer mudar | Arquivo |
 | --- | --- |
-| Posicao de plataformas, buracos, moedas, inimigos e regioes da primeira floresta | `js/levels/forest-1.js` |
-| Ordem das fases que o jogo deve carregar | `js/levels.js` |
+| Posicao de plataformas, buracos, moedas e inimigos da fase 1 de Jungle | `js/levels/jungle-1.js` |
+| Fases disponiveis e fases reservadas | `js/levels.js` |
 | Configuracao e fluxo da partida | `js/game.js` |
 | Movimento, colisao, metas e combate | `js/game-update.js` |
 | Cenarios, terreno, HUD e menus | `js/game-render.js` |
@@ -42,7 +43,7 @@ Os comentarios em portugues no codigo marcam os principais blocos e explicam a f
 
 ### Como adicionar uma fase
 
-Crie um arquivo proprio, por exemplo `js/levels/forest-2.js`, que defina `window.GameLevelForest2`. Carregue esse arquivo em `index.html` antes de `js/levels.js` e acrescente `window.GameLevelForest2` a `window.GameLevels` no cadastro. A ordem nessa lista define a progressao das fases.
+Crie um arquivo proprio, por exemplo `js/levels/jungle-2.js`, carregue-o em `index.html` antes de `js/levels.js` e acrescente sua fase a `window.GameLevels`. So as fases nessa lista ficam habilitadas; fases futuras podem permanecer em `window.GameLevelCatalog` sem entrar no jogo.
 
 ## Musicas e efeitos
 
@@ -71,11 +72,11 @@ Se o navegador bloquear algum recurso ao abrir o arquivo diretamente, execute `p
 
 ## Inimigos
 
-Os inimigos marcados como `E` usam o granadeiro vermelho e preto; os marcados como `B` usam o segundo inimigo azul e preto. Ambos miram e disparam morteiros, precisam de dois acertos para serem derrotados e mostram a animacao de derrota antes de desaparecer. Cada atlas em `assets/enemies/` tem 8 quadros de prontidao, 8 de disparo e 8 de derrota.
+Na primeira fase, os inimigos usam o soldado nivel 1 preto e verde: ele tem 1 ponto de vida, dispara em linha reta por ate 10 blocos e nao causa explosao. O nivel 2 vermelho precisa de 2 acertos para ser derrotado; o nivel 3 azul precisa de 3 e dispara morteiros mais fortes. Os tres atlas em `assets/enemies/` tem 8 quadros de prontidao, 8 de disparo e 8 de derrota. No mapa, `G` representa o soldado verde, `E` o vermelho e `B` o azul.
 
 ## SSG 12 November
 
-O quarto personagem usa o sprite `assets/ssg12november-sprites.png`, chega com uma escavadeira e lanca pas de escavacao. Seu som de entrada e `assets/audio/ssg12november.mp3`. A partida comeca com 10 pas; os pontos de municao ha quatro pontos de municao por segmento, com 5 pas em cada coleta. Ao perder a terceira vida, o jogo volta direto para a selecao de personagens.
+O quarto personagem usa o sprite `assets/ssg12november-sprites.png`, chega com uma escavadeira e lanca pas de escavacao. Seu som de entrada e `assets/audio/ssg12november.mp3`. Os personagens mantem a reserva inicial configurada em `js/characters.js`; na nova fase Jungle 1 nao ha municao solta, e somente os inimigos 3, 6 e 8 deixam cinco municoes cada.
 
 O canvas agora renderiza em 1280 x 768 pixels. O idioma inicial e ingles; o controle `LANGUAGE / IDIOMA` permite alternar para portugues.
 
@@ -83,9 +84,11 @@ O canvas agora renderiza em 1280 x 768 pixels. O idioma inicial e ingles; o cont
 
 Os dois personagens usam atlas transparentes em grade 6 x 6, com tamanho e alinhamento de desenho constantes. O atlas separa repouso, corrida, salto, ataque, dano/morte e entrada especial. Luke tem cinco quadros novos de corrida, cinco de lancamento de bolas de neve e monta no dinossauro apenas durante a entrada e depois corre sozinho; Super Skinny tem corrida e salto em escala constante, ataque de banana e chegada de paraquedas. O nome Super Skinny aparece na selecao em ingles e portugues.
 
-## Meta e dificuldade da fase
+## Fase 1 do mundo Jungle
 
-Para concluir a primeira fase, alcance a bandeira, derrote pelo menos um terco dos inimigos e colete pelo menos metade das moedas. A meta e calculada a partir do conteudo da fase e aparece no HUD. O mapa tem 333 blocos, 25 inimigos e 90 moedas, com tres trechos de floresta diferentes em progressao: borda, floresta densa e clareira. Os inimigos aumentam de 5 para 9 e depois 11; as plataformas, lacunas, cores do terreno e fundos tambem mudam entre os trechos.
+A fase ativa tem 198 blocos, 11 inimigos nivel 1, um vermelho nivel 2 e 55 moedas. Para vencer, alcance a bandeira, derrote pelo menos quatro inimigos e colete pelo menos 28 moedas. Os inimigos 3, 6 e 8 deixam cinco municoes cada; nao ha coletas de municao soltas no mapa. Os dois primeiros buracos sao menores; o terceiro e maior e tem uma base; o ultimo fosso e maior e tem duas plataformas. O personagem inicia com duas barras preenchidas em uma barra visual de quatro partes e perde uma barra por acerto. A bandeira no bloco 93 vira checkpoint e permanece ativa durante as tres vidas. Ao concluir a fase, a mensagem `next phase, 11/29/2026` retorna a selecao de herois quando confirmada.
+
+A antiga fase de 333 blocos esta preservada como Jungle 3, mas nao aparece nem pode ser jogada enquanto nao for adicionada a `window.GameLevels` em `js/levels.js`.
 
 ## Super PACO
 
